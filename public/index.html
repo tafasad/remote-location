@@ -138,6 +138,7 @@
     </div>
   </div>
   <div id="updatesList" style="padding:10px 14px 78px;min-height:60vh"></div>
+  <div style="position:fixed;top:10px;left:14px;right:14px;padding:8px 12px;background:rgba(20,20,20,0.9);border:1px solid #2a2a2a;border-radius:10px;font-size:12px;color:#aaa;text-align:center;backdrop-filter:blur(10px);z-index:5">Agora voce pode enviar atualizacoes diretamente pelo chat</div>
   <div style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(transparent,#050505 20%);padding:10px 14px calc(10px + env(safe-area-inset-bottom))">
     <div style="display:flex;gap:8px;align-items:flex-end">
       <input id="updateInput" placeholder="Mensagem" style="flex:1">
@@ -410,7 +411,7 @@ const app = {
   },
 
   checkUpdate() {
-    const CURRENT_VERSION = '0.3.0';
+    const CURRENT_VERSION = '0.3.1';
     const btn = document.getElementById('updateBtn');
     btn.disabled = true; btn.textContent = 'Verificando...';
     fetch('https://api.github.com/repos/tafasad/remote-location/releases/latest')
