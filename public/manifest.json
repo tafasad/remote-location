@@ -6,5 +6,11 @@
   "background_color": "#0a0a0a",
   "theme_color": "#0a0a0a",
   "orientation": "portrait",
-  "start_url": "/"
+  "icons": [
+    {
+      "src": "/icon-nexus.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
 }
