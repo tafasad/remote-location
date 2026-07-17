@@ -1,0 +1,18 @@
+{
+  "appId": "com.nexus.app",
+  "appName": "Nexus",
+  "webDir": "public",
+  "server": {
+    "url": "http://192.168.18.14:3001",
+    "cleartext": true,
+    "allowNavigation": ["*"]
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true,
+    "containsContent": {
+      "url": ["*"]
+    }
+  }
+}
