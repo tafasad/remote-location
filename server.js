@@ -10,9 +10,16 @@ const wss = new WebSocket.Server({ server });
 const PORT = process.env.PORT || 3001;
 const rooms = new Map();
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use((req, res, next) => {
+  res.removeHeader('X-Powered-By');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  res.setHeader('Pragma', 'no-cache');
+  next();
+});
 
-app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public'), { etag: false, lastModified: false }));
+
+app.use(express.json({ limit: '1kb' }));
 
 app.post('/api/create', (req, res) => {
   const { pin } = req.body;
@@ -27,6 +34,11 @@ app.post('/api/join', (req, res) => {
   if (!pin || pin.length < 4) return res.status(400).json({ error: 'PIN invalido' });
   if (!rooms.has(pin)) return res.status(404).json({ error: 'Sala nao encontrada' });
   res.json({ ok: true });
+});
+
+app.get('*', (req, res) => {
+  res.setHeader('Content-Type', 'text/html');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 wss.on('connection', (ws, req) => {
@@ -80,5 +92,5 @@ const interval = setInterval(() => {
 wss.on('close', () => clearInterval(interval));
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Location server rodando em http://0.0.0.0:${PORT}`);
+  console.log(`GeoPin rodando em http://0.0.0.0:${PORT}`);
 });
