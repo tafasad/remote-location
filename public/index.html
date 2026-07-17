@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#0a0a0a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Nexus</title>
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
 <link rel="manifest" href="/manifest.json">
 <script>
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
@@ -43,6 +44,7 @@ body {
   background: var(--card); border: 1px solid var(--border); border-radius: 16px;
   padding: 24px 16px; text-align: center; cursor: pointer;
   transition: transform 0.15s, border-color 0.15s;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.45);
 }
 .card:active { transform: scale(0.96); }
 .card .icon { font-size: 36px; margin-bottom: 8px; }
@@ -61,6 +63,7 @@ body {
 .pin-card {
   background: var(--card); border: 1px solid var(--border); border-radius: 16px;
   padding: 28px 24px; width: 100%; max-width: 380px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.55);
 }
 .pin-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .pin-hint { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
@@ -156,7 +159,6 @@ input:disabled { opacity: 0.6; }
 <!-- MAIN MENU -->
 <div id="menuScreen" class="screen active">
   <div class="menu-title">NEXUS</div>
-  <div class="menu-sub">Seguro. Encrypted. Sem rastros.</div>
   <div class="grid">
     <div class="card chat" onclick="openSection('chat')">
       <div class="icon">💬</div>
