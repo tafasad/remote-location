@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>GeoPin</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #111; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+.container { width: 100%; max-width: 480px; margin: 0 auto; padding: 18px; }
+h1 { text-align: center; margin-bottom: 18px; font-size: 22px; color: #00E676; }
+.card { background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+input { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; font-size: 16px; letter-spacing: 2px; text-align: center; }
+input:focus { outline: none; border-color: #00E676; }
+button { width: 100%; padding: 14px; border-radius: 8px; border: none; background: #00E676; color: #000; font-size: 16px; font-weight: bold; cursor: pointer; margin-bottom: 8px; }
+button:active { opacity: 0.7; }
+button.secondary { background: #333; color: #fff; }
+.hidden { display: none !important; }
+#map { width: 100%; height: 60vh; border-radius: 12px; border: 1px solid #2a2a2a; background: #000; }
+.status { color: #aaa; font-size: 13px; text-align: center; margin-top: 8px; }
+.row { display: flex; gap: 8px; }
+.row button { flex: 1; }
+</style>
+</head>
+<body>
+
+<div class="container" id="loginScreen">
+  <h1>GEOPIN</h1>
+  <div class="card">
+    <input id="pin" type="text" inputmode="numeric" maxlength="8" placeholder="PIN (4 a 8 digitos)">
+    <div class="row">
+      <button onclick="shareLocation()">Compartilhar</button>
+      <button class="secondary" onclick="viewLocation()">Ver</button>
+    </div>
+  </div>
+  <div class="status">Mesmo PIN nos dois dispositivos</div>
+</div>
+
+<div id="mapContainer" class="hidden">
+  <div class="container" style="padding-top: 12px; padding-bottom: 0;">
+    <h1>AO VIVO</h1>
+    <div class="status" id="status">Conectando...</div>
+  </div>
+  <div id="map"></div>
+  <div class="container" style="padding-top: 12px;">
+    <button class="secondary" onclick="leave()">Sair</button>
+  </div>
+</div>
+
+<script>
+const apiBase = window.location.origin;
+let ws = null;
+let pin = '';
+let map = null;
+let marker = null;
+let watchId = null;
+
+function connect(pinParam, role) {
+  pin = pinParam;
+  const wsUrl = `ws://${window.location.host}/ws?room=${encodeURIComponent(pin)}&role=${role}`;
+  ws = new WebSocket(wsUrl);
+  ws.binaryType = 'arraybuffer';
+  ws.onopen = () => {
+    document.getElementById('loginScreen').classList.add('hidden');
+    document.getElementById('mapContainer').classList.remove('hidden');
+    document.getElementById('status').textContent = role === 'share' ? 'Compartilhando localizacao...' : 'Aguardando localizacao...';
+    if (!map) initMap();
+  };
+  ws.onmessage = (evt) => {
+    const msg = JSON.parse(evt.data);
+    if (msg.type === 'location') {
+      updateMarker(msg.lat, msg.lng);
+      document.getElementById('status').textContent = 'Recebido: ' + new Date(msg.ts).toLocaleTimeString();
+    }
+  };
+  ws.onclose = () => {
+    document.getElementById('status').textContent = 'Desconectado';
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  };
+  ws.onerror = () => {
+    document.getElementById('status').textContent = 'Erro na conexao';
+  };
+}
+
+function initMap() {
+  map = L.map('map').setView([0, 0], 2);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map);
+  marker = L.marker([0, 0]).addTo(map);
+}
+
+function updateMarker(lat, lng) {
+  if (!map || !marker) return;
+  marker.setLatLng([lat, lng]);
+  map.setView([lat, lng], 16);
+}
+
+function shareLocation() {
+  const p = document.getElementById('pin').value.trim();
+  if (!p || p.length < 4) return alert('PIN invalido');
+  fetch('/api/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: p }) })
+    .then(r => { if (!r.ok) throw new Error('Sala ja existe'); return r.json(); })
+    .then(() => connect(p, 'share'))
+    .catch(e => alert(e.message));
+}
+
+function viewLocation() {
+  const p = document.getElementById('pin').value.trim();
+  if (!p || p.length < 4) return alert('PIN invalido');
+  fetch('/api/join', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ pin: p }) })
+    .then(r => { if (!r.ok) throw new Error('PIN incorreto'); return r.json(); })
+    .then(() => connect(p, 'view'))
+    .catch(e => alert(e.message));
+}
+
+function leave() {
+  if (ws) ws.close();
+  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('mapContainer').classList.add('hidden');
+}
+
+const pinInput = document.getElementById('pin');
+pinInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') shareLocation(); });
+
+window.addEventListener('beforeunload', () => {
+  if (ws) ws.close();
+  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+});
+</script>
+</body>
+</html>
