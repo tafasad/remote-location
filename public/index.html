@@ -144,7 +144,15 @@ const app = {
     const pin = document.getElementById('pinInput').value.trim();
     const word = document.getElementById('wordInput').value;
     if (!pin || !word) return;
-    this.init();
+    try {
+      const r = await fetch('/api/create', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ pin, word })
+      });
+      const j = await r.json();
+      if (!r.ok) return alert(j.error || 'Erro');
+    } catch (e) { alert('Sem server'); return; }
     this.pin = pin;
     this.word = word;
     this.salt = crypto.getRandomValues(new Uint8Array(16)).reduce((s,b)=>s+b.toString(16).padStart(2,'0'),'');
