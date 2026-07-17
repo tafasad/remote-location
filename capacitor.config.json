@@ -3,7 +3,7 @@
   "appName": "Nexus",
   "webDir": "public",
   "server": {
-    "url": "http://192.168.18.14:3001",
+    "url": "http://localhost:3001",
     "cleartext": true,
     "allowNavigation": ["*"]
   },

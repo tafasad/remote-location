@@ -25,7 +25,7 @@ public class MainActivity extends BridgeActivity {
       public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         Uri uri = request.getUrl();
         String host = uri.getHost();
-        if (host != null && (host.equals("192.168.18.14") || host.equals("localhost") || host.equals("127.0.0.1") || host.endsWith(".loca.lt") || host.endsWith("trycloudflare.com") || host.contains("broker.hivemq.com"))) {
+        if (host != null && (host.equals("localhost") || host.equals("127.0.0.1") || host.endsWith(".loca.lt") || host.endsWith("trycloudflare.com") || host.contains("broker.hivemq.com"))) {
           view.loadUrl(uri.toString());
           return true;
         }
