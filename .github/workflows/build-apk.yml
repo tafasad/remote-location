@@ -18,6 +18,7 @@ jobs:
         with: { java-version: '21', distribution: 'temurin' }
       - run: npm ci
       - run: npx cap sync android
+      - run: chmod +x android/gradlew
       - run: cd android && ./gradlew clean
       - run: cd android && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v4
