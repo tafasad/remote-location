@@ -373,14 +373,12 @@ const app = {
   checkUpdate() {
     const CURRENT_VERSION = '0.3.0';
     const btn = document.getElementById('updateBtn');
-    let current = localStorage.getItem('nexus_version');
-    if (!current) { current = CURRENT_VERSION; localStorage.setItem('nexus_version', current); }
     btn.disabled = true; btn.textContent = 'Verificando...';
     fetch('https://api.github.com/repos/tafasad/remote-location/releases/latest')
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(j => {
-        const latest = j.tag_name || '0.0.0';
-        if (latest !== current) {
+        const latest = (j.tag_name || '0.0.0').replace(/^v/, '');
+        if (latest !== CURRENT_VERSION) {
           btn.disabled = false; btn.textContent = 'Atualizar Nexus (' + latest + ')';
           btn.style.display = 'block';
           btn.onclick = () => {
@@ -397,6 +395,7 @@ const app = {
           btn.disabled = true; btn.style.display = 'block';
           setTimeout(() => { btn.style.display = 'none'; }, 3000);
         }
+        localStorage.setItem('nexus_version', CURRENT_VERSION);
       })
       .catch(() => {
         btn.textContent = 'Verificar atualizacao';
