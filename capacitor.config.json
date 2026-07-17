@@ -2,11 +2,6 @@
   "appId": "com.nexus.app",
   "appName": "Nexus",
   "webDir": "public",
-  "server": {
-    "url": "http://localhost:3001",
-    "cleartext": true,
-    "allowNavigation": ["*"]
-  },
   "android": {
     "allowMixedContent": true,
     "captureInput": true,

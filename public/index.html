@@ -52,6 +52,7 @@
     <div class="title">Nexus</div>
     <div class="subtitle" id="roomLabel">Sala --</div>
     <div id="peers" class="status">Conectado</div>
+    <button id="updateBtn" class="primary" onclick="app.checkUpdate()" style="margin-top:10px;display:none">Atualizar Nexus</button>
   </div>
   <div class="nav">
     <button class="nav-item active" onclick="app.nav('chat')"><span class="nav-icon">💬</span>Chat</button>
@@ -137,6 +138,7 @@ const app = {
     this.keyHex = await this.deriveKey();
     this.connectMqtt();
     this.show('home');
+    this.checkUpdate();
     document.getElementById('roomLabel').textContent = `Sala ${pin}`;
   },
 
@@ -159,6 +161,7 @@ const app = {
     this.keyHex = await this.deriveKey();
     this.connectMqtt();
     this.show('home');
+    this.checkUpdate();
     document.getElementById('roomLabel').textContent = `Sala ${pin}`;
   },
 
@@ -323,6 +326,40 @@ const app = {
     this.show(map[section]);
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     event.target.closest('.nav-item').classList.add('active');
+  },
+
+  checkUpdate() {
+    const CURRENT_VERSION = '0.1.0';
+    const btn = document.getElementById('updateBtn');
+    let current = localStorage.getItem('nexus_version');
+    if (!current) { current = CURRENT_VERSION; localStorage.setItem('nexus_version', current); }
+    btn.disabled = true; btn.textContent = 'Verificando...';
+    fetch('https://api.github.com/repos/tafasad/remote-location/releases/latest')
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(j => {
+        const latest = j.tag_name || '0.0.0';
+        if (latest !== current) {
+          btn.disabled = false; btn.textContent = 'Atualizar Nexus (' + latest + ')';
+          btn.style.display = 'block';
+          btn.onclick = () => {
+            const asset = (j.assets || []).find(a => a.name.endsWith('.apk'));
+            const url = asset ? asset.browser_download_url : j.html_url;
+            if (asset && window.NexusApp && NexusApp.downloadApk) {
+              NexusApp.downloadApk(url);
+            } else {
+              window.open(url, '_blank');
+            }
+          };
+        } else {
+          btn.textContent = 'Atualizado';
+          btn.disabled = true; btn.style.display = 'block';
+          setTimeout(() => { btn.style.display = 'none'; }, 3000);
+        }
+      })
+      .catch(() => {
+        btn.textContent = 'Verificar atualizacao';
+        btn.disabled = false;
+      });
   }
 };
 
