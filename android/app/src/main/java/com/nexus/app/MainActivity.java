@@ -18,6 +18,7 @@ public class MainActivity extends BridgeActivity {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     WebView webView = this.getBridge().getWebView();
+    webView.setBackgroundColor(0xFF050505);
     WebSettings s = webView.getSettings();
     s.setJavaScriptEnabled(true);
     s.setMediaPlaybackRequiresUserGesture(false);
@@ -25,6 +26,10 @@ public class MainActivity extends BridgeActivity {
     s.setAllowContentAccess(true);
     s.setGeolocationEnabled(true);
     webView.setWebViewClient(new WebViewClient() {
+      @Override
+      public void onPageFinished(WebView view, String url) {
+        view.setBackgroundColor(0xFF050505);
+      }
       @Override
       public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
         Uri uri = request.getUrl();
@@ -36,7 +41,6 @@ public class MainActivity extends BridgeActivity {
         return super.shouldOverrideUrlLoading(view, request);
       }
     });
-
     webView.addJavascriptInterface(new Object() {
       @JavascriptInterface
       public void installApk(String url) {
