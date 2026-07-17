@@ -1,0 +1,15 @@
+{
+	"appId": "com.nexus.app",
+	"appName": "Nexus",
+	"webDir": "public",
+	"android": {
+		"allowMixedContent": true,
+		"captureInput": true,
+		"webContentsDebuggingEnabled": true,
+		"containsContent": {
+			"url": [
+				"*"
+			]
+		}
+	}
+}
