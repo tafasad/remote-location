@@ -9,7 +9,19 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-const PORT = process.env.PORT || 3001;
+let PORT = process.env.PORT || (() => {
+  const base = 3001;
+  const max = 3600;
+  return Math.floor(Math.random() * (max - base)) + base;
+})();
+const HTTP_PORT_FILE = path.join(__dirname, '.port');
+function ensurePort(p) {
+  return new Promise((resolve) => {
+    const srv = http.createServer();
+    srv.listen(p, '0.0.0.0', () => { srv.close(); resolve(p); });
+    srv.on('error', () => resolve(null));
+  });
+}
 const DB_PATH = path.join(__dirname, 'db.json');
 const stores = new Map();
 
@@ -292,6 +304,19 @@ setInterval(() => {
   });
 }, 30000);
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`GeoPin Unificado rodando em http://0.0.0.0:${PORT}`);
-});
+const startServer = async () => {
+  let resolved = await ensurePort(PORT);
+  let attempts = 0;
+  while (!resolved && attempts < 200) {
+    const candidate = Math.floor(Math.random() * (3600 - 3001)) + 3001;
+    resolved = await ensurePort(candidate);
+    attempts++;
+  }
+  if (!resolved) { console.error('Nenhuma porta livre em 3001-3599'); process.exit(1); }
+  PORT = resolved;
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`GeoPin Unificado rodando em http://0.0.0.0:${PORT}`);
+    fs.writeFileSync(HTTP_PORT_FILE, String(PORT));
+  });
+};
+startServer();
