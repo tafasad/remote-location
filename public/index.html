@@ -358,10 +358,16 @@ const app = {
   },
 
   nav(section, event) {
-    const map = { chat: 'chatScreen', loc: 'locScreen', photo: 'photoScreen', audio: 'audioScreen' };
-    this.show(map[section]);
+    const map = { chat: 'chatScreen', loc: 'locScreen', photo: 'photoScreen', audio: 'audioScreen', home: 'home', login: 'login' };
+    this.show(map[section] || section);
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    event.target.closest('.nav-item').classList.add('active');
+    if (event && event.target && event.target.closest) {
+      const item = event.target.closest('.nav-item');
+      if (item) item.classList.add('active');
+    }
+    if (section === 'home' || section === 'login') {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    }
   },
 
   checkUpdate() {
