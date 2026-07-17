@@ -1,10 +1,10 @@
 {
-  "name": "GeoPin",
-  "short_name": "GeoPin",
+  "name": "Nexus",
+  "short_name": "Nexus",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#111111",
-  "theme_color": "#00E676",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
   "orientation": "portrait",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
