@@ -6,7 +6,8 @@
 <title>Nexus</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #050505; color: #e5e5e5; min-height: 100vh; }
+  html, body { width: 100%; height: 100%; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #050505; color: #e5e5e5; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
   .screen { display: none; padding: 20px 14px; animation: fadeIn 0.2s ease; }
   .screen.active { display: block; }
   @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none;} }
@@ -32,7 +33,14 @@
   .media-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; background: #111; }
 </style>
 </head>
-<body>
+<body style="background:#050505">
+<div id="loading" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#666;font-size:13px;flex-direction:column;gap:10px">
+  <div style="width:28px;height:28px;border:2px solid #222;border-top-color:#444;border-radius:50%;animation:spin 1s linear infinite"></div>
+  <div>Carregando Nexus...</div>
+</div>
+<style>
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
 
 <div id="login" class="screen active">
   <div class="card">
@@ -364,6 +372,7 @@ const app = {
 };
 
 document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter') app.sendChat(); });
+setTimeout(() => { const l = document.getElementById('loading'); if (l) l.style.display = 'none'; }, 800);
 </script>
 </body>
 </html>
